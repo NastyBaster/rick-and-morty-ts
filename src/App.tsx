@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import type { Character, APIResponse } from "./types/character";
 import "./index.css";
 import Card from "./components/Card/Card";
@@ -8,23 +8,46 @@ function App() {
   const [nextPageUrl, setNextPageUrl] = useState<string | null>(
     "https://rickandmortyapi.com/api/character/?page=1",
   );
+  const [isLoading, setIsLoading] = useState(false);
+  const loaderRef = useRef<HTMLDivElement | null>(null);
 
   const fetchCharacters = async () => {
-    if (!nextPageUrl) return;
+    if (!nextPageUrl || isLoading) return;
 
     try {
       const res = await fetch(nextPageUrl);
       const data: APIResponse = await res.json();
-      setCharacters((prev) => [...prev, ...data.results]);
+
+      setCharacters((prev) => {
+        const existingIds = new Set(prev.map((c) => c.id));
+        const unique = data.results.filter((c) => !existingIds.has(c.id));
+        return [...prev, ...unique];
+      });
+
       setNextPageUrl(data.info.next);
     } catch (error) {
       console.error("Loading error:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchCharacters();
-  }, []);
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && nextPageUrl && !isLoading) {
+          fetchCharacters();
+        }
+      },
+      { threshold: 1.0 },
+    );
+
+    if (loaderRef.current) {
+      observer.observe(loaderRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [nextPageUrl, isLoading]);
 
   return (
     <div className="container py-5">
@@ -36,16 +59,17 @@ function App() {
         ))}
       </div>
 
-      {nextPageUrl && (
-        <div className="text-center mt-5">
-          <button
-            className="btn btn-outline-dark rounded-pill px-5"
-            onClick={fetchCharacters}
-          >
-            Load more characters
-          </button>
-        </div>
-      )}
+      <div
+        ref={loaderRef}
+        style={{ height: "40px" }}
+        className="d-flex justify-content align-items-center mt-4"
+      >
+        {isLoading && (
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
