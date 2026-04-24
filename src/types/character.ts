@@ -1,10 +1,10 @@
 export interface Character {
   id: number;
   name: string;
-  status: 'Alive' | 'Dead' | 'unknown';
+  status: "Alive" | "Dead" | "unknown";
   species: string;
   type: string;
-  gender: 'Female' | 'Male' | 'Genderless' | 'unknown';
+  gender: "Female" | "Male" | "Genderless" | "unknown";
   origin: {
     name: string;
     url: string;
@@ -26,5 +26,5 @@ export interface APIResponse {
     prev: string | null;
     pages: number;
   };
-  results: Character[]
+  results: Character[];
 }

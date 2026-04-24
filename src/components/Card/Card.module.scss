@@ -1,0 +1,30 @@
+.card {
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  border: none;
+  background: #ffffff;
+  position: relative;
+
+  .badge {
+    z-index: 10;
+  }
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+  }
+}
+
+
+
+.imgWrapper {
+  overflow: hidden;
+  border-radius: 12px 12px 12px 0;
+
+  img {
+    transition: transform 0.5s ease;
+  }
+}
+
+.card:hover img {
+  transform: scale(1.05)
+}
