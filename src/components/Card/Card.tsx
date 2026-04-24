@@ -28,6 +28,7 @@ const Card = ({ data }: CardProps) => {
             className="card-img-top"
             alt={data.name}
             referrerPolicy="no-referrer"
+            crossOrigin="anonymous"
             loading="lazy"
           />
           <div
