@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import type { Character, APIResponse } from "./types/character";
 import "./index.css";
 import Card from "./components/Card/Card";
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 function App() {
   const [characters, setCharacters] = useState<Character[]>([]);
@@ -14,7 +15,11 @@ function App() {
   const fetchCharacters = async () => {
     if (!nextPageUrl || isLoading) return;
 
+    setIsLoading(true);
+
+
     try {
+      await sleep(600);
       const res = await fetch(nextPageUrl);
       const data: APIResponse = await res.json();
 
@@ -39,7 +44,7 @@ function App() {
           fetchCharacters();
         }
       },
-      { threshold: 1.0 },
+      { threshold: 0.1 },
     );
 
     if (loaderRef.current) {
@@ -47,7 +52,7 @@ function App() {
     }
 
     return () => observer.disconnect();
-  }, [nextPageUrl, isLoading]);
+  }, [nextPageUrl]);
 
   return (
     <div className="container py-5">
@@ -62,7 +67,7 @@ function App() {
       <div
         ref={loaderRef}
         style={{ height: "40px" }}
-        className="d-flex justify-content align-items-center mt-4"
+        className="d-flex justify-content-center align-items-center mt-4"
       >
         {isLoading && (
           <div className="spinner-border text-primary" role="status">
