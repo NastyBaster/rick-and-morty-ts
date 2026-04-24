@@ -1,11 +1,17 @@
+import { useState, useEffect, useRef } from "react";
 import type { Character } from "../../types/character";
 import styles from "./Card.module.scss";
+
+const PLACEHOLDER_IMG =
+  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
 
 interface CardProps {
   data: Character;
 }
 
 const Card = ({ data }: CardProps) => {
+  const [isImageVisible, setIsImageVisible] = useState(false);
+  const cardRef = useRef<HTMLDivElement | null>(null);
   const isAlive = data.status === "Alive";
   const isDead = data.status === "Dead";
   const dotColor = isAlive
@@ -19,16 +25,34 @@ const Card = ({ data }: CardProps) => {
       ? "bg-danger"
       : "bg-secondary";
 
+  useEffect(() => {
+    if (isImageVisible) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsImageVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.1, rootMargin: "50px" },
+    );
+
+    if (cardRef.current) {
+      observer.observe(cardRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [isImageVisible]);
+
   return (
-    <div className="col-lg-3 col-md-4 col-sm-6 col-12 mb-4">
+    <div ref={cardRef} className="col-lg-3 col-md-4 col-sm-6 col-12 mb-4">
       <div className={`card h-100 shadow-sm rounded-4 ${styles.card}`}>
         <div className={styles.imgWrapper}>
           <img
-            src={data.image}
+            src={isImageVisible ? data.image : PLACEHOLDER_IMG}
             className="card-img-top"
             alt={data.name}
-            referrerPolicy="no-referrer"
-            crossOrigin="anonymous"
             loading="lazy"
           />
           <div
