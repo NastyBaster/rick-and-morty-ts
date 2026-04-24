@@ -17,6 +17,7 @@ function App() {
 
     setIsLoading(true);
 
+
     try {
       await sleep(600);
       const res = await fetch(nextPageUrl);
@@ -43,7 +44,7 @@ function App() {
           fetchCharacters();
         }
       },
-      { threshold: 1.0 },
+      { threshold: 0.1 },
     );
 
     if (loaderRef.current) {
@@ -51,7 +52,7 @@ function App() {
     }
 
     return () => observer.disconnect();
-  }, [nextPageUrl, isLoading]);
+  }, [nextPageUrl]);
 
   return (
     <div className="container py-5">
